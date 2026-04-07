@@ -1,0 +1,159 @@
+<!DOCTYPE html>
+<html lang="pt-br">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Link Up App - Portal Bueno Software</title>
+    <style>
+        /* DESIGN ORIGINAL MANTIDO */
+        body {
+            background-color: #e3f2fd;
+            font-family: 'Segoe UI', Arial, sans-serif;
+            margin: 0;
+            padding: 20px;
+            display: flex;
+            flex-direction: column;
+            align-items: center;
+            min-height: 100vh;
+        }
+
+        .header-container { text-align: center; margin-bottom: 20px; }
+        .main-title { color: #0d47a1; font-size: 2.5rem; font-weight: 900; margin: 0; letter-spacing: 2px; line-height: 1; }
+        .city-subtitle { color: #1565c0; font-size: 1rem; font-weight: bold; margin: 8px 0; font-style: italic; }
+        .brand-subtitle { color: #1976d2; font-size: 1.2rem; font-weight: 600; margin: 0; text-transform: uppercase; }
+
+        .search-container { width: 100%; max-width: 400px; margin-bottom: 25px; position: relative; }
+        .search-input {
+            width: 100%; padding: 15px 15px 15px 45px; border-radius: 30px; border: 2px solid #bbdefb;
+            background-color: #ffffff; box-shadow: 0 4px 10px rgba(0, 0, 0, 0.05); font-size: 1rem; outline: none; box-sizing: border-box; color: #0d47a1;
+        }
+        .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; color: #1976d2; }
+
+        .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 400px; }
+        .card {
+            background-color: #ffffff; border-radius: 20px; padding: 20px; display: flex; flex-direction: column;
+            align-items: center; justify-content: center; text-align: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
+            aspect-ratio: 1 / 1; transition: transform 0.2s; text-decoration: none; cursor: pointer; border: none;
+        }
+        .card:active { transform: scale(0.95); }
+        .hidden { display: none; }
+        .icon { font-size: 2.8rem; margin-bottom: 12px; }
+        .card-title { font-size: 0.85rem; font-weight: bold; color: #0d47a1; text-transform: uppercase; }
+
+        .footer-info { margin-top: auto; padding: 30px 0 10px; color: #0d47a1; font-size: 0.8rem; font-weight: bold; }
+
+        /* NOVO: BOTÃO FLUTUANTE DE VOLTAR AO TOPO */
+        #btnTopo {
+            display: none; /* Escondido por padrão */
+            position: fixed;
+            bottom: 30px;
+            right: 20px;
+            z-index: 99;
+            border: none;
+            outline: none;
+            background-color: #0d47a1;
+            color: white;
+            cursor: pointer;
+            padding: 15px;
+            border-radius: 50%;
+            font-size: 20px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+            transition: opacity 0.3s;
+            width: 50px;
+            height: 50px;
+            line-height: 20px;
+        }
+
+        #btnTopo:active { background-color: #1976d2; }
+    </style>
+</head>
+<body>
+
+    <button onclick="voltarAoTopo()" id="btnTopo" title="Voltar ao topo">↑</button>
+
+    <div class="header-container">
+        <div class="main-title">LINK UP APP</div>
+        <div class="city-subtitle">Um aplicativo da cidade de Cruzeiro e regiões</div>
+        <div class="brand-subtitle">Bueno Software</div>
+    </div>
+
+    <div class="search-container">
+        <span class="search-icon">🔍</span>
+        <input type="text" id="searchInput" class="search-input" placeholder="O que você procura?" onkeyup="filtrarCards()">
+    </div>
+
+    <div class="grid-container" id="gridCards">
+        <div id="loading">Carregando portal...</div>
+    </div>
+
+    <div class="footer-info">© 2026 BUENO SOFTWARE</div>
+
+    <script>
+        const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQtju8-OfBRE_1Z2MnVYA6oGDoxlqOh2z5SLh1FW0ipemN9njcmPy1Q1jSNEXMor0RJwoMTiOrhf03_/pub?output=csv';
+
+        // Monitora a rolagem da página para mostrar o botão
+        window.onscroll = function() {
+            const btn = document.getElementById("btnTopo");
+            if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
+                btn.style.display = "block";
+            } else {
+                btn.style.display = "none";
+            }
+        };
+
+        // Função que faz a tela subir
+        function voltarAoTopo() {
+            window.scrollTo({ top: 0, behavior: 'smooth' });
+        }
+
+        async function carregarPortal() {
+            try {
+                const response = await fetch(csvUrl);
+                const data = await response.text();
+                const linhas = data.split(/\r?\n/).slice(1);
+                const grid = document.getElementById('gridCards');
+                grid.innerHTML = '';
+                let cardsArray = [];
+
+                linhas.forEach(linha => {
+                    const colunas = linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
+                    if (colunas.length >= 2) {
+                        const nome = colunas[0].replace(/"/g, '').trim();
+                        const emoji = colunas[1].replace(/"/g, '').trim();
+                        const link = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                        if (nome === "") return;
+
+                        const card = document.createElement('div');
+                        card.className = 'card';
+                        card.onclick = function() {
+                            if (link && link.startsWith('http')) {
+                                window.open(link, '_blank');
+                            } else { alert('Em breve...'); }
+                        };
+                        card.innerHTML = `<div class="icon">${emoji}</div><div class="card-title">${nome}</div>`;
+                        cardsArray.push(card);
+                    }
+                });
+                cardsArray.sort(() => Math.random() - 0.5);
+                cardsArray.forEach(c => grid.appendChild(c));
+            } catch (error) {
+                document.getElementById('loading').innerText = "Erro ao carregar dados.";
+            }
+        }
+
+        function filtrarCards() {
+            let input = document.getElementById('searchInput').value.toLowerCase();
+            let cards = document.getElementsByClassName('card');
+            for (let i = 0; i < cards.length; i++) {
+                let titulo = cards[i].querySelector('.card-title').innerText.toLowerCase();
+                if (titulo.includes(input)) { cards[i].classList.remove('hidden'); }
+                else { cards[i].classList.add('hidden'); }
+            }
+        }
+
+        carregarPortal();
+    </script>
+</body>
+</html>
+
+ 
