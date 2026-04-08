@@ -42,9 +42,9 @@
 
         .footer-info { margin-top: auto; padding: 30px 0 10px; color: #0d47a1; font-size: 0.8rem; font-weight: bold; }
 
-        /* NOVO: BOTÃO FLUTUANTE DE VOLTAR AO TOPO */
+        /* BOTÃO FLUTUANTE */
         #btnTopo {
-            display: none; /* Escondido por padrão */
+            display: none;
             position: fixed;
             bottom: 30px;
             right: 20px;
@@ -72,8 +72,8 @@
     <button onclick="voltarAoTopo()" id="btnTopo" title="Voltar ao topo">↑</button>
 
     <div class="header-container">
-        <div class="main-title">LINK UP APP</div>
-        <div class="city-subtitle">Um aplicativo da cidade de Cruzeiro e regiões</div>
+        <div class="main-title">🙋🏾‍♂️ LINK UP APP 🙋🏻</div>
+        <div class="city-subtitle">Um aplicativo da cidade de Cruzeiro e Região</div>
         <div class="brand-subtitle">Bueno Software</div>
     </div>
 
@@ -91,7 +91,6 @@
     <script>
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQtju8-OfBRE_1Z2MnVYA6oGDoxlqOh2z5SLh1FW0ipemN9njcmPy1Q1jSNEXMor0RJwoMTiOrhf03_/pub?output=csv';
 
-        // Monitora a rolagem da página para mostrar o botão
         window.onscroll = function() {
             const btn = document.getElementById("btnTopo");
             if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
@@ -101,7 +100,6 @@
             }
         };
 
-        // Função que faz a tela subir
         function voltarAoTopo() {
             window.scrollTo({ top: 0, behavior: 'smooth' });
         }
@@ -113,7 +111,6 @@
                 const linhas = data.split(/\r?\n/).slice(1);
                 const grid = document.getElementById('gridCards');
                 grid.innerHTML = '';
-                let cardsArray = [];
 
                 linhas.forEach(linha => {
                     const colunas = linha.split(/,(?=(?:(?:[^"]*"){2})*[^"]*$)/);
@@ -121,6 +118,7 @@
                         const nome = colunas[0].replace(/"/g, '').trim();
                         const emoji = colunas[1].replace(/"/g, '').trim();
                         const link = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
+                        
                         if (nome === "") return;
 
                         const card = document.createElement('div');
@@ -131,11 +129,11 @@
                             } else { alert('Em breve...'); }
                         };
                         card.innerHTML = `<div class="icon">${emoji}</div><div class="card-title">${nome}</div>`;
-                        cardsArray.push(card);
+                        
+                        // Adiciona diretamente ao grid sem embaralhar
+                        grid.appendChild(card);
                     }
                 });
-                cardsArray.sort(() => Math.random() - 0.5);
-                cardsArray.forEach(c => grid.appendChild(c));
             } catch (error) {
                 document.getElementById('loading').innerText = "Erro ao carregar dados.";
             }
@@ -156,4 +154,3 @@
 </body>
 </html>
 
- 
