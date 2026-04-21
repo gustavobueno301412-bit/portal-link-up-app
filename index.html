@@ -5,7 +5,7 @@
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link Up App - Portal Bueno Software</title>
     <style>
-        /* DESIGN ORIGINAL MANTIDO */
+        /* DESIGN GERAL */
         body {
             background-color: #e3f2fd;
             font-family: 'Segoe UI', Arial, sans-serif;
@@ -30,46 +30,86 @@
         .search-icon { position: absolute; left: 15px; top: 50%; transform: translateY(-50%); font-size: 1.2rem; color: #1976d2; }
 
         .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 400px; }
+       
+        /* CARD PADRÃO (Sempre nasce branco) */
         .card {
-            background-color: #ffffff; border-radius: 20px; padding: 20px; display: flex; flex-direction: column;
+            background-color: #ffffff; border-radius: 20px; padding: 15px; display: flex; flex-direction: column;
             align-items: center; justify-content: center; text-align: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
-            aspect-ratio: 1 / 1; transition: transform 0.2s; text-decoration: none; cursor: pointer; border: none;
+            min-height: 160px; transition: all 0.3s ease; text-decoration: none; cursor: pointer; border: 2px solid transparent;
         }
+
+        /* COR DEPOIS DE CLICAR (Se não tiver link) */
+        .card.clicado-breve {
+            background-color: #fce4ec; /* Tom rosa para indicar 'Em breve' */
+            border: 2px dashed #f06292;
+        }
+
         .card:active { transform: scale(0.95); }
         .hidden { display: none; }
-        .icon { font-size: 2.8rem; margin-bottom: 12px; }
-        .card-title { font-size: 0.85rem; font-weight: bold; color: #0d47a1; text-transform: uppercase; }
+        .icon { font-size: 2.8rem; margin-bottom: 8px; }
+        .card-title { font-size: 0.85rem; font-weight: bold; color: #0d47a1; text-transform: uppercase; margin-bottom: 5px; }
+
+        /* DESCRIÇÃO CENTRALIZADA */
+        .card-desc {
+            font-size: 0.75rem;
+            color: #555;
+            line-height: 1.2;
+            margin-top: 5px;
+            text-align: center;
+        }
 
         .footer-info { margin-top: auto; padding: 30px 0 10px; color: #0d47a1; font-size: 0.8rem; font-weight: bold; }
 
-        /* BOTÃO FLUTUANTE */
-        #btnTopo {
+        /* MODAL PERSONALIZADO */
+        .modal-breve {
             display: none;
             position: fixed;
-            bottom: 30px;
-            right: 20px;
-            z-index: 99;
-            border: none;
-            outline: none;
+            z-index: 1000;
+            left: 0; top: 0; width: 100%; height: 100%;
+            background-color: rgba(0,0,0,0.6);
+            align-items: center; justify-content: center;
+        }
+        .modal-content {
+            background-color: white;
+            padding: 25px;
+            border-radius: 25px;
+            text-align: center;
+            max-width: 280px;
+            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
+            animation: popIn 0.3s ease-out;
+        }
+        @keyframes popIn {
+            from { transform: scale(0.8); opacity: 0; }
+            to { transform: scale(1); opacity: 1; }
+        }
+        .modal-content h2 { color: #0d47a1; margin-top: 0; font-size: 1.5rem; } /* Título em Azul */
+        .modal-content p { color: #333; font-size: 1rem; margin: 15px 0; }
+        .btn-modal {
             background-color: #0d47a1;
-            color: white;
-            cursor: pointer;
-            padding: 15px;
-            border-radius: 50%;
-            font-size: 20px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-            transition: opacity 0.3s;
-            width: 50px;
-            height: 50px;
-            line-height: 20px;
+            color: white; border: none;
+            padding: 12px 25px; border-radius: 30px;
+            font-weight: bold; cursor: pointer; width: 100%;
         }
 
-        #btnTopo:active { background-color: #1976d2; }
+        #btnTopo {
+            display: none; position: fixed; bottom: 30px; right: 20px; z-index: 99;
+            border: none; outline: none; background-color: #0d47a1; color: white;
+            cursor: pointer; padding: 15px; border-radius: 50%; width: 50px; height: 50px;
+            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
+        }
     </style>
 </head>
 <body>
 
-    <button onclick="voltarAoTopo()" id="btnTopo" title="Voltar ao topo">↑</button>
+    <div id="modalBreve" class="modal-breve">
+        <div class="modal-content">
+            <h2>🚀 Em Breve!</h2>
+            <p>Estamos preparando novidades incríveis para este segmento.</p>
+            <button class="btn-modal" onclick="fecharModal()">OK, ENTENDI!</button>
+        </div>
+    </div>
+
+    <button onclick="voltarAoTopo()" id="btnTopo">↑</button>
 
     <div class="header-container">
         <div class="main-title">🙋🏾‍♂️ LINK UP APP 🙋🏻</div>
@@ -91,18 +131,17 @@
     <script>
         const csvUrl = 'https://docs.google.com/spreadsheets/d/e/2PACX-1vQtju8-OfBRE_1Z2MnVYA6oGDoxlqOh2z5SLh1FW0ipemN9njcmPy1Q1jSNEXMor0RJwoMTiOrhf03_/pub?output=csv';
 
+        function abrirModal() { document.getElementById('modalBreve').style.display = 'flex'; }
+        function fecharModal() { document.getElementById('modalBreve').style.display = 'none'; }
+
         window.onscroll = function() {
             const btn = document.getElementById("btnTopo");
             if (document.body.scrollTop > 300 || document.documentElement.scrollTop > 300) {
                 btn.style.display = "block";
-            } else {
-                btn.style.display = "none";
-            }
+            } else { btn.style.display = "none"; }
         };
 
-        function voltarAoTopo() {
-            window.scrollTo({ top: 0, behavior: 'smooth' });
-        }
+        function voltarAoTopo() { window.scrollTo({ top: 0, behavior: 'smooth' }); }
 
         async function carregarPortal() {
             try {
@@ -118,19 +157,30 @@
                         const nome = colunas[0].replace(/"/g, '').trim();
                         const emoji = colunas[1].replace(/"/g, '').trim();
                         const link = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
-                        
+                        const descricao = colunas[3] ? colunas[3].replace(/"/g, '').trim() : "";
+                      
                         if (nome === "") return;
 
                         const card = document.createElement('div');
-                        card.className = 'card';
+                        card.className = 'card'; // Todos começam brancos
+
                         card.onclick = function() {
-                            if (link && link.startsWith('http')) {
+                            if (!link || link === "" || !link.startsWith('http')) {
+                                // Ação para 'Em breve'
+                                abrirModal();
+                                card.classList.add('clicado-breve'); // Muda para rosa após o clique
+                            } else {
+                                // Ação para link real
                                 window.open(link, '_blank');
-                            } else { alert('Em breve...'); }
+                            }
                         };
-                        card.innerHTML = `<div class="icon">${emoji}</div><div class="card-title">${nome}</div>`;
-                        
-                        // Adiciona diretamente ao grid sem embaralhar
+
+                        card.innerHTML = `
+                            <div class="icon">${emoji}</div>
+                            <div class="card-title">${nome}</div>
+                            <div class="card-desc">${descricao}</div>
+                        `;
+                      
                         grid.appendChild(card);
                     }
                 });
@@ -154,3 +204,4 @@
 </body>
 </html>
 
+ 
