@@ -4,6 +4,11 @@
     <meta charset="UTF-8">
     <meta name="viewport" content="width=device-width, initial-scale=1.0">
     <title>Link Up App - Portal Bueno Software</title>
+    <!-- Configurações para PWA -->
+    <link rel="manifest" href="manifest.json">
+    <link rel="apple-touch-icon" href="192x192.png">
+    <link rel="icon" href="192x192.png" type="image/png">
+   
     <style>
         /* DESIGN GERAL */
         body {
@@ -22,6 +27,20 @@
         .city-subtitle { color: #1565c0; font-size: 1rem; font-weight: bold; margin: 8px 0; font-style: italic; }
         .brand-subtitle { color: #1976d2; font-size: 1.2rem; font-weight: 600; margin: 0; text-transform: uppercase; }
 
+        /* Estilo do botão de instalação */
+        .btn-install {
+            display: inline-block;
+            margin: 15px 0;
+            padding: 10px 20px;
+            background-color: #25D366;
+            color: white;
+            text-decoration: none;
+            border-radius: 30px;
+            font-weight: bold;
+            font-size: 0.9rem;
+            box-shadow: 0 4px 6px rgba(0,0,0,0.1);
+        }
+
         .search-container { width: 100%; max-width: 400px; margin-bottom: 25px; position: relative; }
         .search-input {
             width: 100%; padding: 15px 15px 15px 45px; border-radius: 30px; border: 2px solid #bbdefb;
@@ -31,72 +50,30 @@
 
         .grid-container { display: grid; grid-template-columns: repeat(2, 1fr); gap: 15px; width: 100%; max-width: 400px; }
        
-        /* CARD PADRÃO (Sempre nasce branco) */
+        /* CARD PADRÃO */
         .card {
             background-color: #ffffff; border-radius: 20px; padding: 15px; display: flex; flex-direction: column;
             align-items: center; justify-content: center; text-align: center; box-shadow: 0 4px 15px rgba(0, 0, 0, 0.07);
             min-height: 160px; transition: all 0.3s ease; text-decoration: none; cursor: pointer; border: 2px solid transparent;
         }
 
-        /* COR DEPOIS DE CLICAR (Se não tiver link) */
-        .card.clicado-breve {
-            background-color: #fce4ec; /* Tom rosa para indicar 'Em breve' */
-            border: 2px dashed #f06292;
-        }
-
+        .card.clicado-breve { background-color: #fce4ec; border: 2px dashed #f06292; }
         .card:active { transform: scale(0.95); }
         .hidden { display: none; }
         .icon { font-size: 2.8rem; margin-bottom: 8px; }
         .card-title { font-size: 0.85rem; font-weight: bold; color: #0d47a1; text-transform: uppercase; margin-bottom: 5px; }
-
-        /* DESCRIÇÃO CENTRALIZADA */
-        .card-desc {
-            font-size: 0.75rem;
-            color: #555;
-            line-height: 1.2;
-            margin-top: 5px;
-            text-align: center;
-        }
-
+        .card-desc { font-size: 0.75rem; color: #555; line-height: 1.2; margin-top: 5px; text-align: center; }
         .footer-info { margin-top: auto; padding: 30px 0 10px; color: #0d47a1; font-size: 0.8rem; font-weight: bold; }
 
-        /* MODAL PERSONALIZADO */
-        .modal-breve {
-            display: none;
-            position: fixed;
-            z-index: 1000;
-            left: 0; top: 0; width: 100%; height: 100%;
-            background-color: rgba(0,0,0,0.6);
-            align-items: center; justify-content: center;
-        }
-        .modal-content {
-            background-color: white;
-            padding: 25px;
-            border-radius: 25px;
-            text-align: center;
-            max-width: 280px;
-            box-shadow: 0 10px 25px rgba(0,0,0,0.2);
-            animation: popIn 0.3s ease-out;
-        }
-        @keyframes popIn {
-            from { transform: scale(0.8); opacity: 0; }
-            to { transform: scale(1); opacity: 1; }
-        }
-        .modal-content h2 { color: #0d47a1; margin-top: 0; font-size: 1.5rem; } /* Título em Azul */
+        /* MODAL */
+        .modal-breve { display: none; position: fixed; z-index: 1000; left: 0; top: 0; width: 100%; height: 100%; background-color: rgba(0,0,0,0.6); align-items: center; justify-content: center; }
+        .modal-content { background-color: white; padding: 25px; border-radius: 25px; text-align: center; max-width: 280px; box-shadow: 0 10px 25px rgba(0,0,0,0.2); animation: popIn 0.3s ease-out; }
+        @keyframes popIn { from { transform: scale(0.8); opacity: 0; } to { transform: scale(1); opacity: 1; } }
+        .modal-content h2 { color: #0d47a1; margin-top: 0; font-size: 1.5rem; }
         .modal-content p { color: #333; font-size: 1rem; margin: 15px 0; }
-        .btn-modal {
-            background-color: #0d47a1;
-            color: white; border: none;
-            padding: 12px 25px; border-radius: 30px;
-            font-weight: bold; cursor: pointer; width: 100%;
-        }
+        .btn-modal { background-color: #0d47a1; color: white; border: none; padding: 12px 25px; border-radius: 30px; font-weight: bold; cursor: pointer; width: 100%; }
 
-        #btnTopo {
-            display: none; position: fixed; bottom: 30px; right: 20px; z-index: 99;
-            border: none; outline: none; background-color: #0d47a1; color: white;
-            cursor: pointer; padding: 15px; border-radius: 50%; width: 50px; height: 50px;
-            box-shadow: 0 4px 10px rgba(0,0,0,0.3);
-        }
+        #btnTopo { display: none; position: fixed; bottom: 30px; right: 20px; z-index: 99; border: none; outline: none; background-color: #0d47a1; color: white; cursor: pointer; padding: 15px; border-radius: 50%; width: 50px; height: 50px; box-shadow: 0 4px 10px rgba(0,0,0,0.3); }
     </style>
 </head>
 <body>
@@ -112,8 +89,15 @@
     <button onclick="voltarAoTopo()" id="btnTopo">↑</button>
 
     <div class="header-container">
-        <div class="main-title">🙋🏾‍♂️ LINK UP APP 🙋🏻</div>
-        <div class="city-subtitle">Um aplicativo da cidade de Cruzeiro e Região</div>
+        <div class="main-title">🙋🏾‍♂️ Portal LINK UP🙋🏻</div>
+        <div class="city-subtitle">Encontre tudo de Cruzeiro em um só lugar </div>
+       
+        <!-- Botão WhatsApp adicionado -->
+        <a href="https://wa.me/5512998448264?text=Olá%2C%20eu%20queria%20instalar%20o%20aplicativo%20no%20meu%20celular.%20Você%20pode%20me%20mandar%20o%20procedimento%3F"
+           target="_blank" class="btn-install">
+           📱 Como instalar no celular
+        </a>
+
         <div class="brand-subtitle">Bueno Software</div>
     </div>
 
@@ -158,19 +142,17 @@
                         const emoji = colunas[1].replace(/"/g, '').trim();
                         const link = colunas[2] ? colunas[2].replace(/"/g, '').trim() : "";
                         const descricao = colunas[3] ? colunas[3].replace(/"/g, '').trim() : "";
-                      
+                   
                         if (nome === "") return;
 
                         const card = document.createElement('div');
-                        card.className = 'card'; // Todos começam brancos
+                        card.className = 'card';
 
                         card.onclick = function() {
                             if (!link || link === "" || !link.startsWith('http')) {
-                                // Ação para 'Em breve'
                                 abrirModal();
-                                card.classList.add('clicado-breve'); // Muda para rosa após o clique
+                                card.classList.add('clicado-breve');
                             } else {
-                                // Ação para link real
                                 window.open(link, '_blank');
                             }
                         };
@@ -180,7 +162,7 @@
                             <div class="card-title">${nome}</div>
                             <div class="card-desc">${descricao}</div>
                         `;
-                      
+                   
                         grid.appendChild(card);
                     }
                 });
